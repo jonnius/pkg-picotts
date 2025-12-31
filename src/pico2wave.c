@@ -73,7 +73,7 @@ int main(int argc, const char *argv[]) {
     char * wavefile = NULL;
     char * lang = "en-US";
     int langIndex = -1, langIndexTmp = -1;
-    char * text;
+    char * text = NULL;
     int8_t * buffer;
     size_t bufferSize = 256;
     
@@ -130,10 +130,11 @@ int main(int argc, const char *argv[]) {
 	}
 
 	/* Remaining argument is <words> */
-	const char **extra_argv;
-	extra_argv = poptGetArgs(optCon);
-    if(extra_argv) {
-		text = (char *) &(*extra_argv)[0];
+	const char *extra_arg;
+	extra_arg = poptGetArg(optCon);
+    if(extra_arg) {
+        text = malloc(strlen(extra_arg) + 1);
+        strcpy(text, extra_arg);
     } else {
         //TODO: stdin not supported yet.
 		fprintf(stderr, "Missing argument: %s\n\n", 
@@ -305,6 +306,11 @@ int main(int argc, const char *argv[]) {
                                         (picoos_int16*) (buffer));
         }
         picoSynthAbort = 0;
+    }
+
+    if (text) {
+	free(text);
+	text = NULL;
     }
     
     if(TRUE != (done = picoos_sdfCloseOut(common, &sdOutFile)))
